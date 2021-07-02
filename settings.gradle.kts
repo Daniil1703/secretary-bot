@@ -1,2 +1,2 @@
-rootProject.name = "jaicf-jaicp-caila-template"
+rootProject.name = "secretary-bot"
 
