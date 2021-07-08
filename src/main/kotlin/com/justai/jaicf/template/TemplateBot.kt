@@ -14,8 +14,11 @@ val accessToken: String = System.getenv("JAICP_API_TOKEN") ?: Properties().run {
     getProperty("apiToken")
 }
 
-private val cailaNLUSettings = CailaNLUSettings(
-    accessToken = accessToken
+val cailaActivator = CailaIntentActivator.Factory(
+    CailaNLUSettings(
+        accessToken = accessToken,
+        confidenceThreshold = 0.2
+    )
 )
 
 val templateBot = BotEngine(
@@ -25,7 +28,7 @@ val templateBot = BotEngine(
         Slf4jConversationLogger()
     ),
     activators = arrayOf(
-        CailaIntentActivator.Factory(cailaNLUSettings),
+        cailaActivator,
         RegexActivator
     )
 )

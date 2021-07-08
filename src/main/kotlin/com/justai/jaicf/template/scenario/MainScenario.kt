@@ -1,58 +1,67 @@
 package com.justai.jaicf.template.scenario
 
-import com.justai.jaicf.activator.caila.caila
+import com.github.kotlintelegrambot.entities.KeyboardReplyMarkup
+import com.github.kotlintelegrambot.entities.ReplyKeyboardRemove
+import com.github.kotlintelegrambot.entities.keyboard.KeyboardButton
 import com.justai.jaicf.builder.Scenario
+import com.justai.jaicf.channel.telegram.TelegramEvent
+import com.justai.jaicf.channel.telegram.telegram
+import com.justai.jaicf.reactions.buttons
 
 val mainScenario = Scenario {
+
+    append(RedirectionScenario)
+
     state("start") {
         activators {
             regex("/start")
             intent("Hello")
         }
         action {
-            reactions.run {
-                image("https://media.giphy.com/media/ICOgUNjpvO0PC/source.gif")
-                sayRandom(
-                    "Hello! How can I help?",
-                    "Hi there! How can I help you?"
+            reactions.telegram?.run {
+                say(
+                    "Здравствуйте! Я ваш помощник, бот-секретарь. Я буду отвечать на ваши звонки, если вы не" +
+                            " можете или не хотите отвечать."
                 )
-                buttons(
-                    "Help me!",
-                    "How are you?",
-                    "What is your name?"
-                )
+                go("getPhoneNumber")
             }
         }
-    }
 
-    state("bye") {
-        activators {
-            intent("Bye")
+        state ("getPhoneNumber") {
+            action {
+                reactions.telegram?.say(
+                    "Чтобы начать настройку, поделитесь со мной номером телефона",
+                    replyMarkup = KeyboardReplyMarkup(KeyboardButton("Отправить контакт", requestContact = true))
+                )
+            }
+
+            state("allow") {
+                activators {
+                    event(TelegramEvent.CONTACT)
+                }
+                action {
+                    // val phoneNumber = request.telegram?.message?.contact?.phoneNumber
+                    reactions.telegram?.say("Как вас представлять?", replyMarkup = ReplyKeyboardRemove())
+                    reactions.telegram?.go("getName")
+                }
+            }
         }
 
-        action {
-            reactions.sayRandom(
-                "See you soon!",
-                "Bye-bye!"
-            )
-            reactions.image("https://media.giphy.com/media/EE185t7OeMbTy/source.gif")
-        }
-    }
+        state("getName") {
+            activators {
+                catchAll()
+            }
+            action {
+                context.client["name"] = request.input
+                reactions.telegram?.say("Отлично, я вас буду представлять, как '${context.client["name"]}'")
+                reactions.telegram?.buttons("Да, все верно" to RedirectionScenario.settingRedirection , "Нет, меняем" to "changeName")
+            }
 
-    state("smalltalk", noContext = true) {
-        activators {
-            anyIntent()
+            state("changeName") {
+                action {
+                    reactions.telegram?.say("Хорошо, как вас представлять?")
+                }
+            }
         }
-
-        action(caila) {
-            activator.topIntent.answer?.let { reactions.say(it) } ?: reactions.go("/fallback")
-        }
-    }
-
-    fallback {
-        reactions.sayRandom(
-            "Sorry, I didn't get that...",
-            "Sorry, could you repeat please?"
-        )
     }
 }
