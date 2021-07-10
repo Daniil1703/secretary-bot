@@ -35,6 +35,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.just-ai.jaicf:telegram:$jaicf")
+    implementation("com.just-ai.jaicf:mongo:$jaicf")
 }
 
 tasks {
