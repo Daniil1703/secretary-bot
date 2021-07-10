@@ -1,24 +1,14 @@
 package com.justai.jaicf.template.scenario
 
-import com.github.kotlintelegrambot.entities.InlineKeyboardMarkup
 import com.github.kotlintelegrambot.entities.KeyboardReplyMarkup
 import com.github.kotlintelegrambot.entities.ReplyKeyboardRemove
-import com.github.kotlintelegrambot.entities.keyboard.InlineKeyboardButton
 import com.github.kotlintelegrambot.entities.keyboard.KeyboardButton
 import com.justai.jaicf.builder.Scenario
-import com.justai.jaicf.channel.jaicp.channels.TelephonyEvents
-import com.justai.jaicf.channel.jaicp.dto.telephony
-import com.justai.jaicf.channel.jaicp.reactions.telephony
-import com.justai.jaicf.channel.jaicp.telephony
 import com.justai.jaicf.channel.telegram.TelegramEvent
 import com.justai.jaicf.channel.telegram.telegram
-import com.justai.jaicf.context.DialogContext
-import com.justai.jaicf.context.manager.mongo.BotContextModel
-import com.justai.jaicf.context.manager.mongo.MongoBotContextManager
 import com.justai.jaicf.reactions.buttons
 import com.justai.jaicf.template.scenario.telegram.RedirectionScenario
 import com.justai.jaicf.template.scenario.telephony.TelephonyScenario
-import javax.swing.text.Document
 
 val mainScenario = Scenario {
 
