@@ -1,4 +1,5 @@
 package com.justai.jaicf.template.scenario
+
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.justai.jaicf.api.BotRequest
 import com.justai.jaicf.api.BotResponse
