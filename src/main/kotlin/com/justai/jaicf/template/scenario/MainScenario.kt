@@ -4,7 +4,6 @@ import com.github.kotlintelegrambot.entities.KeyboardReplyMarkup
 import com.github.kotlintelegrambot.entities.ReplyKeyboardRemove
 import com.github.kotlintelegrambot.entities.keyboard.KeyboardButton
 import com.justai.jaicf.builder.Scenario
-import com.justai.jaicf.channel.BotChannel
 import com.justai.jaicf.channel.telegram.TelegramEvent
 import com.justai.jaicf.channel.telegram.telegram
 import com.justai.jaicf.reactions.buttons
@@ -45,7 +44,6 @@ val mainScenario = Scenario {
                     event(TelegramEvent.CONTACT)
                 }
                 action {
-                    context.client["phoneNumber"] = request.telegram?.message?.contact?.phoneNumber
                     reactions.telegram?.say("Как вас представлять?", replyMarkup = ReplyKeyboardRemove())
                 }
             }

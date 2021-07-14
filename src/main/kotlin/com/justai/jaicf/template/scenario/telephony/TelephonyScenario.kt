@@ -2,6 +2,7 @@ package com.justai.jaicf.template.scenario.telephony
 
 import com.justai.jaicf.builder.Scenario
 import com.justai.jaicf.channel.jaicp.channels.TelephonyEvents
+import com.justai.jaicf.channel.jaicp.dto.telephony
 import com.justai.jaicf.channel.jaicp.reactions.telephony
 import com.justai.jaicf.model.scenario.Scenario
 import com.justai.jaicf.model.scenario.getValue
