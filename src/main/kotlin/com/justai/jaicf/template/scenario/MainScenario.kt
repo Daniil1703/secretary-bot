@@ -4,6 +4,7 @@ import com.github.kotlintelegrambot.entities.KeyboardReplyMarkup
 import com.github.kotlintelegrambot.entities.ReplyKeyboardRemove
 import com.github.kotlintelegrambot.entities.keyboard.KeyboardButton
 import com.justai.jaicf.builder.Scenario
+import com.justai.jaicf.channel.BotChannel
 import com.justai.jaicf.channel.telegram.TelegramEvent
 import com.justai.jaicf.channel.telegram.telegram
 import com.justai.jaicf.reactions.buttons
@@ -18,7 +19,6 @@ val mainScenario = Scenario {
     state("start") {
         activators {
             regex("/start")
-            intent("Hello")
         }
         action {
             reactions.telegram?.run {
@@ -45,32 +45,28 @@ val mainScenario = Scenario {
                     event(TelegramEvent.CONTACT)
                 }
                 action {
-                    // val phoneNumber = request.telegram?.message?.contact?.phoneNumber
+                    context.client["phoneNumber"] = request.telegram?.message?.contact?.phoneNumber
+                    reactions.telegram?.say("Как вас представлять?", replyMarkup = ReplyKeyboardRemove())
+                }
+            }
+
+            state("getName") {
+                activators {
+                    intent("name")
+                }
+                action {
+                    context.client["userName"] = request.input
                     reactions.telegram?.run {
-                        say("Как вас представлять?", replyMarkup = ReplyKeyboardRemove())
-                        go("getName")
+                        say("Отлично, я вас буду представлять, как '${context.client["userName"]}'")
+                        buttons("Да, все верно" to RedirectionScenario.settingRedirection , "Нет, меняем" to "changeName")
                     }
                 }
-            }
-        }
 
-        state("getName") {
-            activators {
-                intent("anyWord")
-            }
-            action {
-                context.client["name"] = request.input
-                reactions.telegram?.run {
-                    say("Отлично, я вас буду представлять, как '${context.client["name"]}'")
-                    buttons("Да, все верно" to RedirectionScenario.settingRedirection , "Нет, меняем" to "changeName")
-                }
-            }
-
-            state("changeName") {
-                action {
-                    reactions.telegram?.run {
-                        say("Хорошо, как вас представлять?")
-                        go("getName")
+                state("changeName") {
+                    action {
+                        reactions.telegram?.run {
+                            say("Хорошо, как вас представлять?")
+                        }
                     }
                 }
             }

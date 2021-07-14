@@ -11,126 +11,119 @@ object TelephonyScenario : Scenario {
 
         state("acceptedCall") {
             activators {
-
+                event(TelephonyEvents.SPEECH_NOT_RECOGNISED)
+                event(TelephonyEvents.NO_DTMF_ANSWER)
+                intent("Hello")
             }
             action {
                 reactions.telephony?.run {
-                    say("Алло. - здравствуйте.")
+                    say("Здравствуйте! Я виртуальный секретарь ${context.client["userName"]}, чем могу Вам помочь?")
                 }
             }
-        }
 
-        state("anyReply") {
-            activators {
-                event(TelephonyEvents.NO_DTMF_ANSWER)
-                intent("anyWord")
-            }
-
-            action {
-                reactions.telephony?.say("Я виртуальный секретарь Данила, чем могу Вам помочь?")
-            }
-        }
-
-        state("talkTo") {
-            activators {
-                intent("canITalkTo")
-            }
-
-            action {
-                reactions.telephony?.say("Уточните пожалуйста, - по какому вопросу вы звоните?")
-            }
-
-            state("anyWord") {
+            state("talkTo") {
                 activators {
-                    catchAll()
+                    intent("canITalkTo")
                 }
 
                 action {
-                    reactions.telephony?.say("К сожалению, Даниил сейчас не может вам ответить. Он на собрании." +
-                            "- Скажите пожалуйста, что ему передать?")
+                    reactions.telephony?.say("Уточните пожалуйста, - по какому вопросу вы звоните?")
                 }
 
-                state("conveyThatCallBack") {
+                state("anyWord") {
                     activators {
-                        intent("callBack")
-                    }
-                    action {
-                        reactions.telephony?.say("есть ли пожелания по времени, в которое вам будет удобно?")
-                        reactions.telephony?.go("goodbye")
+                        catchAll()
                     }
 
-                    state("yes") {
+                    action {
+                        reactions.telephony?.say("К сожалению, ${context.client["userName"]} сейчас не может вам ответить. Он на собрании." +
+                                "- Скажите пожалуйста, что ему передать?")
+                    }
+
+                    state("conveyThatCallBack") {
                         activators {
-                            intent("anyWord")
+                            intent("callBack")
+                        }
+                        action {
+                            reactions.telephony?.say("есть ли пожелания по времени, в которое вам будет удобно?")
+                            reactions.telephony?.go("/goodbye")
                         }
 
+                        state("yes") {
+                            activators {
+                                intent("anyWord")
+                            }
+
+                            action {
+                                reactions.telephony?.run {
+                                    say("Хорошо.")
+                                    go("/goodbye")
+                                }
+                            }
+                        }
+
+                        state("no") {
+                            activators {
+                                intent("nothing")
+                            }
+                            action { reactions.telephony?.go("/goodbye") }
+                        }
+                    }
+
+                    state("conveyThatNothing") {
+                        activators {
+                            intent("nothing")
+                        }
                         action {
                             reactions.telephony?.run {
-                                say("Хорошо.")
-                                go("goodbye")
+                                say("Я тогда просто передам, что вы звонили.")
+                                go("/goodbye")
                             }
                         }
                     }
 
-                    state("no") {
-                        activators {
-                            intent("nothing")
-                        }
-                        action { reactions.telephony?.go("goodbye") }
-                    }
-                }
-
-                state("conveyThatNothing") {
-                    activators {
-                        intent("nothing")
-                    }
-                    action {
-                        reactions.telephony?.run {
-                            say("Я тогда просто передам, что вы звонили.")
-                            go("goodbye")
-                        }
-                    }
-                }
-
-                state("conveyThatAnyThing") {
-                    activators {
-                        intent("anyWord")
-                    }
-                    action {
-                        reactions.telephony?.say("Хорошо, я все передам. Что-то еще?")
-                    }
-
-                    state("yes") {
+                    state("conveyThatAnyThing") {
                         activators {
                             intent("anyWord")
                         }
-
                         action {
-                            reactions.telephony?.run {
-                                say("Поняла, - передам")
-                                go("goodbye")
+                            reactions.telephony?.say("Хорошо, я все передам. Что-то еще?")
+                        }
+
+                        state("yes") {
+                            activators {
+                                intent("anyWord")
+                            }
+
+                            action {
+                                reactions.telephony?.run {
+                                    say("Поняла, - передам")
+                                    go("/goodbye")
+                                }
                             }
                         }
-                    }
 
-                    state("no") {
-                        activators {
-                            intent("nothing")
+                        state("no") {
+                            activators {
+                                intent("nothing")
+                            }
+                            action { reactions.telephony?.go("/goodbye") }
                         }
-                        action { reactions.telephony?.go("goodbye") }
                     }
                 }
+
+                state("delivery") {
+
+                }
             }
-
-            state("delivery") {
-
-            }
-        }
-
-        state("goodbye") {
-            action {
-                reactions.telephony?.say("До свидания.")
-                reactions.telephony?.hangup()
+            state("goodbye") {
+                action {
+                    reactions.telephony?.run {
+                        say("До свидания.")
+                        hangup()
+                        go("route")
+                    }
+                }
             }
         }
     }
