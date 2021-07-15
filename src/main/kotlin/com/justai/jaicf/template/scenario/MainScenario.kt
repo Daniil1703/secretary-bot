@@ -4,6 +4,7 @@ import com.github.kotlintelegrambot.entities.KeyboardReplyMarkup
 import com.github.kotlintelegrambot.entities.ReplyKeyboardRemove
 import com.github.kotlintelegrambot.entities.keyboard.KeyboardButton
 import com.justai.jaicf.builder.Scenario
+import com.justai.jaicf.channel.jaicp.dto.telephony
 import com.justai.jaicf.channel.telegram.TelegramEvent
 import com.justai.jaicf.channel.telegram.telegram
 import com.justai.jaicf.reactions.buttons
@@ -16,7 +17,7 @@ val mainScenario = Scenario {
     append(TelephonyScenario)
 
     state("start") {
-        activators {
+        globalActivators {
             regex("/start")
         }
         action {
@@ -56,7 +57,7 @@ val mainScenario = Scenario {
                     context.client["userName"] = request.input
                     reactions.telegram?.run {
                         say("Отлично, я вас буду представлять, как '${context.client["userName"]}'")
-                        buttons("Да, все верно" to RedirectionScenario.settingRedirection , "Нет, меняем" to "changeName")
+                        buttons("Да, все верно" to RedirectionScenario.settingRedirection , "Нет, меняем" to "/changeName")
                     }
                 }
 

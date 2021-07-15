@@ -20,11 +20,15 @@ class MongoBotContextManagerGlobal(
 
     @Suppress("DEPRECATION")
     private val mapper = jacksonObjectMapper().enableDefaultTyping()
-    var clientId = String()
 
+    private var clientIdTg = String()
+    private var clientIdTel = String()
     override fun loadContext(request: BotRequest, requestContext: RequestContext): BotContext {
+        if (request.telephony?.caller != null) {
+            clientIdTel = request.telephony?.caller.toString()
+        }
         return collection
-            .find(Filters.eq("_id", clientId))
+            .find(Filters.eq("_id", clientIdTel))
             .iterator().tryNext()?.let { doc ->
                 val model = mapper.readValue(doc.toJson(), BotContextModel::class.java)
 
@@ -43,13 +47,12 @@ class MongoBotContextManagerGlobal(
         response: BotResponse?,
         requestContext: RequestContext
     ) {
-        if (request?.telephony?.caller != null) {
-            clientId = request.telephony?.caller.toString()
-        } else if (request?.telegram?.message?.contact?.phoneNumber != null) {
-            clientId = request.telegram?.message?.contact?.phoneNumber!!
+
+        if (request?.telegram?.message?.contact?.phoneNumber != null) {
+            clientIdTg = request.telegram?.message?.contact?.phoneNumber!!
         }
         BotContextModel(
-            _id = clientId,
+            _id = clientIdTg,
             result = botContext.result,
             client = botContext.client.toMap(),
             session = botContext.session.toMap(),

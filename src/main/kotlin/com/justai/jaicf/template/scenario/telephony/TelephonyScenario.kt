@@ -11,15 +11,26 @@ object TelephonyScenario : Scenario {
     override val model by Scenario {
 
         state("acceptedCall") {
-            activators {
+            globalActivators {
                 event(TelephonyEvents.SPEECH_NOT_RECOGNISED)
                 event(TelephonyEvents.NO_DTMF_ANSWER)
-                intent("Hello")
             }
             action {
                 reactions.telephony?.run {
                     say("Здравствуйте! Я виртуальный секретарь ${context.client["userName"]}, чем могу Вам помочь?")
                 }
+            }
+
+            state ("silence", true) {
+                activators {
+                    event(TelephonyEvents.SPEECH_NOT_RECOGNISED)
+                }
+
+                action { reactions.sayRandom(
+                    "Вас плохо слышно, что вы сказали?",
+                    "Повторите пожалуйста, не расслышала",
+                    "Связь прерывается, повторите пожалуйста"
+                ) }
             }
 
             state("talkTo") {
@@ -33,7 +44,7 @@ object TelephonyScenario : Scenario {
 
                 state("anyWord") {
                     activators {
-                        catchAll()
+                        intent("anyWord")
                     }
 
                     action {
@@ -47,17 +58,15 @@ object TelephonyScenario : Scenario {
                         }
                         action {
                             reactions.telephony?.say("есть ли пожелания по времени, в которое вам будет удобно?")
-                            reactions.telephony?.go("/goodbye")
                         }
 
                         state("yes") {
                             activators {
                                 intent("anyWord")
                             }
-
                             action {
                                 reactions.telephony?.run {
-                                    say("Хорошо.")
+                                    say("Хорошо, он вам перезвонит.")
                                     go("/goodbye")
                                 }
                             }
