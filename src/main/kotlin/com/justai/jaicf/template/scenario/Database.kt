@@ -12,6 +12,7 @@ import com.justai.jaicf.context.manager.mongo.BotContextModel
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.ReplaceOptions
+import kotlinx.serialization.json.jsonObject
 import org.bson.Document
 
 class MongoBotContextManagerGlobal(
@@ -24,8 +25,9 @@ class MongoBotContextManagerGlobal(
     private var clientIdTg = String()
     private var clientIdTel = String()
     override fun loadContext(request: BotRequest, requestContext: RequestContext): BotContext {
-        if (request.telephony?.caller != null) {
-            clientIdTel = request.telephony?.caller.toString()
+        if (request.telephony?.jaicp?.rawRequest?.get("headers") != null) {
+            val stingWithSip = request.telephony?.jaicp?.rawRequest?.get("headers")?.jsonObject?.get("Diversion").toString()
+            clientIdTel = stingWithSip.split(":")[1].split("@")[0]
         }
         return collection
             .find(Filters.eq("_id", clientIdTel))
@@ -49,7 +51,8 @@ class MongoBotContextManagerGlobal(
     ) {
 
         if (request?.telegram?.message?.contact?.phoneNumber != null) {
-            clientIdTg = request.telegram?.message?.contact?.phoneNumber!!
+            val bufferTelephone: String = request.telegram?.message?.contact?.phoneNumber.toString()
+            clientIdTg = "700${bufferTelephone.split("+")[1]}"
         }
         BotContextModel(
             _id = clientIdTg,
