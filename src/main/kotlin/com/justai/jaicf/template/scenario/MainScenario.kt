@@ -17,7 +17,7 @@ val mainScenario = Scenario {
 
     state("start") {
         globalActivators {
-            regex("/start")
+            regex("/star")
         }
         action {
             reactions.telegram?.run {
@@ -44,6 +44,9 @@ val mainScenario = Scenario {
                     event(TelegramEvent.CONTACT)
                 }
                 action {
+                    val bufferTelephone = request.telegram?.message?.contact?.phoneNumber?.split("+")?.get(0)
+                    val clientIdTg = "700$bufferTelephone"
+                    reactions.telegram?.say(clientIdTg)
                     reactions.telegram?.say("Как вас представлять?", replyMarkup = ReplyKeyboardRemove())
                 }
             }

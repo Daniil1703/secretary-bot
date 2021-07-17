@@ -2,9 +2,11 @@ package com.justai.jaicf.template.scenario.telephony
 
 import com.justai.jaicf.builder.Scenario
 import com.justai.jaicf.channel.jaicp.channels.TelephonyEvents
+import com.justai.jaicf.channel.jaicp.dto.telephony
 import com.justai.jaicf.channel.jaicp.reactions.telephony
 import com.justai.jaicf.model.scenario.Scenario
 import com.justai.jaicf.model.scenario.getValue
+import kotlinx.serialization.json.jsonObject
 
 object TelephonyScenario : Scenario {
     override val model by Scenario {
@@ -13,9 +15,13 @@ object TelephonyScenario : Scenario {
             globalActivators {
                 event(TelephonyEvents.SPEECH_NOT_RECOGNISED)
                 event(TelephonyEvents.NO_DTMF_ANSWER)
+                regex("/start")
             }
             action {
                 reactions.telephony?.run {
+                    val stingWithSip = request.telephony?.jaicp?.rawRequest?.get("headers")?.jsonObject?.get("Diversion").toString()
+                    val clientIdTel = stingWithSip.split(":")[1].split("@")[0]
+                    say(clientIdTel)
                     say("Здравствуйте! Я виртуальный секретарь ${context.client["userName"]}, чем могу Вам помочь?")
                 }
             }

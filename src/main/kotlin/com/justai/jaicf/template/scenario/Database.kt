@@ -51,8 +51,8 @@ class MongoBotContextManagerGlobal(
     ) {
 
         if (request?.telegram?.message?.contact?.phoneNumber != null) {
-            val bufferTelephone: String = request.telegram?.message?.contact?.phoneNumber.toString()
-            clientIdTg = "700${bufferTelephone.split("+")[1]}"
+            val bufferTelephone = request.telegram?.message?.contact?.phoneNumber?.split("+")?.get(0)
+            clientIdTg = "700$bufferTelephone"
         }
         BotContextModel(
             _id = clientIdTg,
@@ -62,6 +62,7 @@ class MongoBotContextManagerGlobal(
             dialogContext = botContext.dialogContext
         ).apply {
             val doc = Document.parse(mapper.writeValueAsString(this))
+            collection.replaceOne(Filters.eq("_id", null), doc)
             collection.replaceOne(Filters.eq("_id", _id), doc, ReplaceOptions().upsert(true))
         }
     }
